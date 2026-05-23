@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ka">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FaceLink — Face Recognition</title>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"
+    ></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="grid-overlay"></div>
+
+    <!-- NAV -->
+    <nav>
+      <div class="logo">Face<span>Link</span></div>
+      <div class="nav-links">
+        <button class="nav-btn" onclick="showPage('landing')">Home</button>
+        <button class="nav-btn" onclick="showPage('scan')">Scan</button>
+        <button class="nav-btn" onclick="showPage('dashboard')">Profile</button>
+      </div>
+    </nav>
+
+    <!-- ========== LANDING ========== -->
+    <div id="page-landing" class="page active" style="padding-top: 80px">
+      <div style="text-align: center; margin-bottom: 32px">
+        <h1>
+          Face Recognition<br /><span style="color: var(--accent)">System</span>
+        </h1>
+        <p class="subtitle">Local face detection and storage</p>
+      </div>
+
+      <div class="glass-card">
+        <div class="tabs">
+          <div
+            class="tab active"
+            id="tab-login"
+            onclick="switchAuthTab('login')"
+          >
+            Login
+          </div>
+          <div
+            class="tab"
+            id="tab-register"
+            onclick="switchAuthTab('register')"
+          >
+            Register
+          </div>
+        </div>
+
+        <div class="cam-wrap" id="authCamWrap">
+          <video id="authVideo" autoplay muted playsinline></video>
+          <canvas id="authCanvas"></canvas>
+          <div class="scan-ring"></div>
+        </div>
+
+        <div id="loginPanel">
+          <div id="loginStatus" class="status info mt12">
+            Loading AI models...
+          </div>
+          <button
+            class="btn btn-primary mt12"
+            id="loginBtn"
+            onclick="tryLogin()"
+            disabled
+          >
+            Login with Face
+          </button>
+        </div>
+
+        <div id="registerPanel" class="hidden">
+          <div id="captureStatus" class="status warn mt12">Take a photo</div>
+          <button class="btn btn-secondary mt12" onclick="captureFaceForReg()">
+            Capture Face
+          </button>
+          <div id="regForm" class="hidden mt12">
+            <div class="divider"><span>Complete Profile</span></div>
+            <div class="scroll-form">
+              <div class="form-group">
+                <label>First Name *</label
+                ><input type="text" id="regName" placeholder="John" />
+              </div>
+              <div class="form-group">
+                <label>Last Name *</label
+                ><input type="text" id="regSurname" placeholder="Doe" />
+              </div>
+              <div class="form-group">
+                <label>Instagram</label
+                ><input type="text" id="regInsta" placeholder="@username" />
+              </div>
+              <div class="form-group">
+                <label>Facebook</label
+                ><input
+                  type="text"
+                  id="regFacebook"
+                  placeholder="facebook.com/username"
+                />
+              </div>
+              <div class="form-group">
+                <label>Phone</label
+                ><input
+                  type="tel"
+                  id="regPhone"
+                  placeholder="+1 555 000 0000"
+                />
+              </div>
+              <div class="form-group">
+                <label>Email</label
+                ><input
+                  type="email"
+                  id="regEmail"
+                  placeholder="email@example.com"
+                />
+              </div>
+            </div>
+            <div id="regStatus" class="status info hidden"></div>
+            <button class="btn btn-primary mt12" onclick="registerUser()">
+              Register
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SCAN ========== -->
+    <div id="page-scan" class="page" style="padding-top: 80px">
+      <div style="text-align: center; margin-bottom: 28px">
+        <h1>Face<br /><span style="color: var(--accent)">Detection</span></h1>
+        <p class="subtitle">Camera or photo upload for face detection</p>
+      </div>
+
+      <div class="glass-card">
+        <div class="tabs">
+          <div
+            class="tab active"
+            id="tab-cam-scan"
+            onclick="switchScanTab('camera')"
+          >
+            Camera
+          </div>
+          <div
+            class="tab"
+            id="tab-upload-scan"
+            onclick="switchScanTab('upload')"
+          >
+            Photo
+          </div>
+        </div>
+
+        <div id="scanCamPanel">
+          <div class="cam-wrap">
+            <video id="scanVideo" autoplay muted playsinline></video>
+            <canvas id="scanCanvas"></canvas>
+            <div class="scan-ring"></div>
+          </div>
+          <div id="scanCamStatus" class="status info mt12">
+            Loading camera...
+          </div>
+          <button class="btn btn-primary mt12" onclick="scanFromCamera()">
+            Detect Face
+          </button>
+        </div>
+
+        <div id="scanUploadPanel" class="hidden">
+          <div class="upload-area">
+            <input
+              type="file"
+              id="uploadInput"
+              accept="image/*"
+              onchange="handleUpload(event)"
+            />
+            <div class="upload-icon">Upload</div>
+            <div style="font-weight: 600; margin-bottom: 4px">Upload Photo</div>
+            <div class="upload-hint">JPG, PNG, WEBP</div>
+          </div>
+          <div id="uploadStatus" class="status info mt12 hidden"></div>
+        </div>
+      </div>
+
+      <div id="scanResult" class="mt20 hidden"></div>
+    </div>
+
+    <!-- ========== DASHBOARD ========== -->
+    <div id="page-dashboard" class="page" style="padding-top: 80px">
+      <div class="dashboard-wrap">
+        <h2>My Profile</h2>
+        <div class="glass-card" id="dashProfile">
+          <div class="text-center" style="color: var(--muted); padding: 20px">
+            Please login first
+          </div>
+        </div>
+        <div class="mt12">
+          <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
